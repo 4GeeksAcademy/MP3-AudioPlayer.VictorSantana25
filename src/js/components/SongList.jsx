@@ -1,5 +1,4 @@
 import React from 'react';
-import { ListGroup } from 'react-bootstrap';
 
 const SongList = ({ songs, onPlay }) => {
     if (!Array.isArray(songs)) return <p>No hay canciones disponibles.</p>;
