@@ -1,28 +1,50 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from 'react'
+import AudioPlayer from './AudioPlayer'
+import SongList from './SongList'
 
-//include images into your bundle
-import rigoImage from "../../img/rigo-baby.jpg";
-
-//create your first component
 const Home = () => {
-	return (
-		<div className="text-center">
-            
+	const [songs, setSongs] = useState([]);
+	const [currentIndex, setCurrentIndex] = useState(0);
+	const audioRef = useRef(null);
 
-			<h1 className="text-center mt-5">Hello Rigo!</h1>
-			<p>
-				<img src={rigoImage} />
-			</p>
-			<a href="#" className="btn btn-success">
-				If you see this green button... bootstrap is working...
-			</a>
-			<p>
-				Made by{" "}
-				<a href="http://www.4geeksacademy.com">4Geeks Academy</a>, with
-				love!
-			</p>
+	useEffect(() => {
+		fetch("https://playground.4geeks.com/sound/songs")
+			.then(res => res.json())
+			.then(data => {
+				console.log("Canciones cargadas:", data);
+				setSongs(data.songs);
+			})
+			.catch(err => console.error("Error al obtener las canciones:", err));
+	}, []);
+
+	const playSong = (index) => {
+		setCurrentIndex(index);
+		audioRef.current.load();
+		audioRef.current.play();
+	};
+
+	const playNext = () => {
+		const nextIndex = (currentIndex + 1) % songs.length;
+		playSong(nextIndex);
+	};
+
+	const playPrev = () => {
+		const prevIndex = (currentIndex - 1 + songs.length) % songs.length;
+		playSong(prevIndex);
+	};
+
+	return (
+		<div className="container mt-3">
+			<h1 className="text-center">🎵 Reproductor MP3</h1>
+			<SongList songs={songs} onPlay={playSong} />
+			<AudioPlayer
+				ref={audioRef}
+				songUrl={songs[currentIndex] ? `https://playground.4geeks.com${songs[currentIndex].url}` : ""}
+				onNext={playNext}
+				onPrev={playPrev}
+			/>
 		</div>
 	);
 };
 
-export default Home;
+export default Home
